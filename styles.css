@@ -1,0 +1,94 @@
+body {
+    background-color: #f5f5f5; /* Fundo claro */
+    font-family: 'Coves', sans-serif; /* Fonte Coves */
+}
+
+/* Estilos para o cabeçalho */
+header {
+    background-color: #fff; /* Fundo branco */
+    padding: 20px;
+    text-align: center;
+}
+
+.logo img {
+    max-width: 200px;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline;
+    margin-right: 20px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #333; /* Cor do texto */
+    font-weight: bold;
+}
+
+/* Estilos para as seções */
+main {
+    padding: 20px;
+}
+
+section {
+    background-color: #fff; /* Fundo branco */
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+h2 {
+    margin-top: 0;
+}
+
+.btn {
+    background-color: #007bff; /* Cor de fundo azul */
+    color: #fff; /* Cor do texto branco */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease; /* Transição suave */
+    box-shadow: 0 4px 6px rgba(0, 123, 255, 0.1); /* Sombra suave */
+}
+
+.btn:hover {
+    background-color: #0056b3; /* Cor de fundo azul mais escura ao passar o mouse */
+    transform: translateY(-2px); /* Efeito de levantamento ao passar o mouse */
+    box-shadow: 0 6px 8px rgba(0, 123, 255, 0.1); /* Sombra mais pronunciada */
+}
+
+/* Estilos para os formulários */
+form {
+    margin-top: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input[type="text"],
+input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Estilos para o rodapé */
+footer {
+    background-color: #fff; /* Fundo branco */
+    padding: 20px;
+    text-align: center;
+    border-top: 1px solid #ccc; /* Borda superior cinza */
+}
+
