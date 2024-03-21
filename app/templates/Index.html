@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Estoque</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <header>
+            <h1 class="text-center mb-4">Sistema de Gerenciamento de Estoque</h1>
+            <nav class="mb-4">
+                <ul class="nav justify-content-center">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Principal</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Adicionar Produto</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Remover Produto</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Relatório de Estoque</a>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- Formulário para cadastrar um novo produto -->
+        <form id="form-cadastrar-produto">
+            <div class="form-group">
+                <label for="name">Nome:</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Descrição:</label>
+                <input type="text" class="form-control" id="description" name="description">
+            </div>
+            <div class="form-group">
+                <label for="price">Preço:</label>
+                <input type="number" class="form-control" id="price" name="price" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="quantity">Quantidade:</label>
+                <input type="number" class="form-control" id="quantity" name="quantity" required>
+            </div>
+            <div class="form-group">
+                <label for="category">Categoria:</label>
+                <input type="text" class="form-control" id="category" name="category">
+            </div>
+            <button type="submit" class="btn btn-primary">Cadastrar Produto</button>
+        </form>
+
+        <hr>
+
+        <!-- Tabela para exibir o relatório de produtos -->
+        <h3>Relatório de Produtos</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Preço</th>
+                    <th>Quantidade</th>
+                    <th>Categoria</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <!-- Aqui os produtos serão adicionados dinamicamente via JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- JavaScript para interagir com o backend Flask via AJAX -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        // Função para carregar o relatório de produtos via AJAX
+        function carregarRelatorio() {
+            $.get('/gerar-relatorio', function(data) {
+                $('#table-body').empty(); // Limpa a tabela antes de adicionar os novos dados
+                data.forEach(function(product) {
+                    $('#table-body').append(`<tr>
+                        <td>${product.id}</td>
+                        <td>${product.name}</td>
+                        <td>${product.price}</td>
+                        <td>${product.quantity}</td>
+                        <td>${product.category}</td>
+                    </tr>`);
+                });
+            });
+        }
+
+        // Carregar o relatório de produtos quando a página é carregada
+        $(document).ready(function() {
+            carregarRelatorio();
+        });
+
+        // Submeter o formulário de cadastro de produto via AJAX
+        $('#form-cadastrar-produto').submit(function(event) {
+            event.preventDefault(); // Evita o comportamento padrão de submit do formulário
+            var formData = $(this).serialize(); // Serializa os dados do formulário
+            $.post('/cadastrar-produto', formData, function(response) {
+                alert(response.message); // Exibe uma mensagem de sucesso
+                carregarRelatorio(); // Recarrega o relatório de produtos
+                $('#form-cadastrar-produto')[0].reset(); // Limpa o formulário
+            }).fail(function(xhr, status, error) {
+                alert('Erro ao cadastrar o produto: ' + xhr.responseText); // Exibe uma mensagem de erro
+            });
+        });
+    </script>
+</body>
+</html>
