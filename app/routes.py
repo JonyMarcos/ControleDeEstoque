@@ -8,7 +8,7 @@ def index():
     return render_template('index.html')
 
 # Rota para gerar relatório de produtos
-@app.route('/generate-report', methods=['GET'])
+@app.route('/gerar-relatorio', methods=['GET'])
 def generate_report():
     try:
         products = Product.query.all()
@@ -37,34 +37,24 @@ def update_stock():
     except Exception as e:
         return jsonify({"error": "Erro ao atualizar o estoque: " + str(e)}), 500
 
-# Rota para adicionar um novo produto
-@app.route('/add-product', methods=['POST'])
-def add_product():
+# Rota para cadastrar um novo produto
+@app.route('/cadastrar-produto', methods=['POST'])
+def cadastrar_produto():
     try:
-        data = request.json
+        data = request.form
         name = data.get('name')
         if not name:
             return jsonify({"error": "O nome do produto é obrigatório"}), 400
 
-        description = data.get('description', '')  # Descrição é opcional
-        price = data.get('price')
-        if not price or not isinstance(price, (int, float)):
-            return jsonify({"error": "O preço do produto é obrigatório e deve ser um número"}), 400
+        description = data.get('description', '')
+        price = float(data.get('price', 0))  # Convertendo para float
+        quantity = int(data.get('quantity', 0))  # Convertendo para int
+        category = data.get('category', '')
 
-        quantity = data.get('quantity')
-        if not quantity or not isinstance(quantity, int):
-            return jsonify({"error": "A quantidade do produto é obrigatória e deve ser um número inteiro"}), 400
-
-        category = data.get('category', '')  # Categoria é opcional
-
-        # Criando um novo produto
         new_product = Product(name=name, description=description, price=price, quantity=quantity, category=category)
         db.session.add(new_product)
         db.session.commit()
         return jsonify({"message": "Produto cadastrado com sucesso!"}), 201
-    except IntegrityError:
-        db.session.rollback()
-        return jsonify({"error": "Erro ao cadastrar o produto: nome duplicado"}), 400
     except Exception as e:
         return jsonify({"error": "Erro ao cadastrar o produto: " + str(e)}), 500
 
