@@ -12,7 +12,8 @@ def index():
 def generate_report():
     try:
         products = Product.query.all()
-        result = [{"id": product.id, "name": product.name, "quantity": product.quantity} for product in products]
+        result = [{"id": product.id, "name": product.name, "price": product.price, "quantity": product.quantity, "category": product.category} for product in products]
+        print(result)  # Adiciona esta linha para imprimir os dados antes de enviá-los para o frontend
         return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": "Erro ao gerar o relatório: " + str(e)}), 500

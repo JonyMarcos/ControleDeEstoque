@@ -71,12 +71,19 @@
                 <!-- Aqui os produtos serão adicionados dinamicamente via JavaScript -->
             </tbody>
         </table>
+
+        <!-- Gráfico de Pizza para mostrar a porcentagem por categoria de produtos pela quantidade -->
+        <div class="mt-5">
+            <h3 class="text-center">Porcentagem por Categoria de Produtos pela Quantidade</h3>
+            <canvas id="pie-chart" width="400" height="400" class="mx-auto d-block"></canvas>
+        </div>
     </div>
 
-   <!-- JavaScript para interagir com o backend Flask via AJAX -->
+   <!-- JavaScript para interagir com o backend Flask via AJAX e renderizar o gráfico de pizza -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
 <script>
-    // Função para carregar o relatório de produtos via AJAX
+    // Função para carregar o relatório de produtos via AJAX e renderizar o gráfico de pizza
     function carregarRelatorio() {
         $.get('/gerar-relatorio', function(data) {
             $('#table-body').empty(); // Limpa a tabela antes de adicionar os novos dados
@@ -89,10 +96,44 @@
                     <td>${product.category}</td>
                 </tr>`);
             });
+
+            // Agrupar produtos por categoria e calcular a quantidade total por categoria
+            const categories = {};
+            data.forEach(function(product) {
+                categories[product.category] = (categories[product.category] || 0) + product.quantity;
+            });
+
+            // Obter as chaves (categorias) e os valores (quantidades) do objeto de categorias
+            const categoryNames = Object.keys(categories);
+            const categoryQuantities = Object.values(categories);
+
+            // Renderizar o gráfico de pizza
+            var ctx = document.getElementById('pie-chart').getContext('2d');
+            var pieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: categoryNames,
+                    datasets: [{
+                        data: categoryQuantities,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.6)',
+                            'rgba(54, 162, 235, 0.6)',
+                            'rgba(255, 206, 86, 0.6)',
+                            'rgba(75, 192, 192, 0.6)',
+                            'rgba(153, 102, 255, 0.6)',
+                            'rgba(255, 159, 64, 0.6)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
         });
     }
 
-    // Carregar o relatório de produtos quando a página é carregada
+    // Carregar o relatório de produtos e renderizar o gráfico de pizza quando a página é carregada
     $(document).ready(function() {
         carregarRelatorio();
     });
@@ -113,3 +154,4 @@
 </script>
 </body>
 </html>
+
