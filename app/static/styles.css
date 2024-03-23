@@ -1,3 +1,5 @@
+/* Adicionei algumas regras de estilo para melhorar a aparência do layout */
+
 body {
     background-color: #f5f5f5; /* Fundo claro */
     font-family: 'Coves', sans-serif; /* Fonte Coves */
@@ -32,36 +34,15 @@ nav ul li a {
 }
 
 /* Estilos para as seções */
-main {
-    padding: 20px;
-}
-
 section {
     background-color: #fff; /* Fundo branco */
     padding: 20px;
-    margin-bottom: 20px;
     border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
 }
 
 h2 {
     margin-top: 0;
-}
-
-.btn {
-    background-color: #007bff; /* Cor de fundo azul */
-    color: #fff; /* Cor do texto branco */
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.3s ease; /* Transição suave */
-    box-shadow: 0 4px 6px rgba(0, 123, 255, 0.1); /* Sombra suave */
-}
-
-.btn:hover {
-    background-color: #0056b3; /* Cor de fundo azul mais escura ao passar o mouse */
-    transform: translateY(-2px); /* Efeito de levantamento ao passar o mouse */
-    box-shadow: 0 6px 8px rgba(0, 123, 255, 0.1); /* Sombra mais pronunciada */
 }
 
 /* Estilos para os formulários */
@@ -84,6 +65,24 @@ input[type="number"] {
     box-sizing: border-box;
 }
 
+/* Estilos para os botões */
+.btn {
+    background-color: #007bff; /* Cor de fundo azul */
+    color: #fff; /* Cor do texto branco */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease; /* Transição suave */
+    box-shadow: 0 4px 6px rgba(0, 123, 255, 0.1); /* Sombra suave */
+}
+
+.btn:hover {
+    background-color: #0056b3; /* Cor de fundo azul mais escura ao passar o mouse */
+    transform: translateY(-2px); /* Efeito de levantamento ao passar o mouse */
+    box-shadow: 0 6px 8px rgba(0, 123, 255, 0.1); /* Sombra mais pronunciada */
+}
+
 /* Estilos para o rodapé */
 footer {
     background-color: #fff; /* Fundo branco */
@@ -92,3 +91,13 @@ footer {
     border-top: 1px solid #ccc; /* Borda superior cinza */
 }
 
+.logo {
+    max-width: 200px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .col-md-6 {
+        width: 100%;
+    }
+}
