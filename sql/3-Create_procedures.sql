@@ -1,7 +1,7 @@
 USE [MercadoCruz]
 GO
 
-/****** Object:  StoredProcedure [dbo].[SPGenerateProductCode]    Script Date: 25/03/2024 19:03:59 ******/
+/****** Object:  StoredProcedure [dbo].[SPGenerateProductCode]    Script Date: 20/04/2024 17:02:51 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -13,11 +13,20 @@ AS
 BEGIN
     DECLARE @NextCode VARCHAR(50);
 
-    -- Obtenha o próximo valor de ProductCode
-    SELECT @NextCode = COALESCE(MAX(Product_Code), '00000') FROM Products;
+    -- Obtenha as três primeiras letras do nome do produto mais um prefixo 001
+    DECLARE @Prefix VARCHAR(3);
+    SET @Prefix = '000'; -- Inicialize o prefixo com '000' para o caso de não haver produtos
 
-    -- Incremente o valor para o próximo código
-    SET @NextCode = RIGHT('00000' + CAST(CAST(@NextCode AS INT) + 1 AS VARCHAR(50)), 5);
+    SELECT TOP 1 @Prefix = LEFT(UPPER(Name), 3) FROM Products ORDER BY Id;
+
+    -- Obtenha o próximo valor de ProductCode
+    SELECT @NextCode = COALESCE(MAX(Product_Code), @Prefix + '000') FROM Products;
+
+    -- Se o próximo código já estiver no formato correto, incremente o número sequencial
+    IF LEFT(@NextCode, 3) = @Prefix
+        SET @NextCode = RIGHT('000' + CAST(CAST(RIGHT(@NextCode, 3) AS INT) + 1 AS VARCHAR(50)), 3);
+    ELSE
+        SET @NextCode = @Prefix + '001'; -- Caso contrário, comece um novo sequencial
 
     -- Retorne o próximo código
     SELECT @NextCode AS NextCode;
