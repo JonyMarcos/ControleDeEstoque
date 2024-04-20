@@ -101,3 +101,38 @@ footer {
         width: 100%;
     }
 }
+.urgent-item {
+    color: red; /* Define a cor do texto como vermelho para destacar */
+    font-weight: bold; /* Define o peso da fonte como negrito para destacar */
+}
+/* Estilos para o contêiner do gráfico e da legenda */
+.chart-container {
+    display: flex;
+    justify-content: center; /* Coloca espaço entre o gráfico e a legenda */
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.chart {
+    width: 60%; /* Aumenta a largura do gráfico para 60% */
+    max-width: 500px; /* Defina o tamanho máximo do gráfico */
+}
+
+.legend-container {
+    display: flex;
+    flex-direction: column;
+    margin-left: 20px; /* Espaçamento entre o gráfico e a legenda */
+    padding-right: 20px; /* Adiciona um espaçamento à direita da legenda */
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px; /* Espaçamento entre os itens da legenda */
+}
+
+.legend-color {
+    width: 20px; /* Largura do bloco de cor */
+    height: 10px; /* Altura do bloco de cor */
+    margin-right: 5px; /* Espaçamento entre o bloco de cor e o texto */
+}

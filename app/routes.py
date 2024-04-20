@@ -2,11 +2,26 @@ from flask import render_template, jsonify, request
 from app import app, db
 from app.models import Product, Supplier, User
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import text
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
+# Rota para obter produtos com baixo estoque
+@app.route('/produtos-baixo-estoque', methods=['GET'])
+def produtos_baixo_estoque():
+    try:
+        # Consulta os produtos com quantidade menor que 50
+        produtos_baixo_estoque = Product.query.filter(Product.quantity < 20).all()
+        
+        # Formata os dados dos produtos para retornar
+        result = [{"name": produto.name, "quantity": produto.quantity, "description": produto.description} for produto in produtos_baixo_estoque]
+        
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": "Erro ao obter produtos com baixo estoque: " + str(e)}), 500
+    
 # Rota para gerar relatório de produtos
 @app.route('/gerar-relatorio', methods=['GET'])
 def generate_report():
@@ -57,12 +72,29 @@ def cadastrar_produto():
         quantity = int(data.get('quantity', 0))  
         category = data.get('category', '')
 
+        # Obtenha as três primeiras letras do nome do produto em maiúsculas
+        prefix = name[:3].upper()
+
+        # Consulte o banco de dados para verificar se já existe um código com esse prefixo
+        existing_products = Product.query.filter(Product.product_code.like(f'{prefix}%')).all()
+
+        # Se já existir, determine o próximo número a ser usado
+        if existing_products:
+            last_code = max([int(product.product_code[-3:]) for product in existing_products])
+            next_number = last_code + 1
+        else:
+            next_number = 1
+
+        # Formate o próximo código com o prefixo e o número sequencial
+        next_product_code = f'{prefix}{next_number:03d}'
+
         new_product = Product(name=name, description=description, price=price, quantity=quantity, category=category, supplier_id=supplier_id, product_code=next_product_code)
         db.session.add(new_product)
         db.session.commit()
         return jsonify({"message": f"Produto cadastrado com sucesso! Código do produto: {next_product_code}"}), 201
     except Exception as e:
         return jsonify({"error": "Erro ao cadastrar o produto: " + str(e)}), 500
+
 
 # Rota para cadastrar um novo fornecedor
 @app.route('/cadastrar-fornecedor', methods=['POST'])
@@ -87,6 +119,7 @@ def cadastrar_fornecedor():
         return jsonify({"message": "Fornecedor cadastrado com sucesso!"}), 201
     except Exception as e:
         return jsonify({"error": "Erro ao cadastrar o fornecedor: " + str(e)}), 500
+
 
 # Rota para lidar com erros 404 (recurso não encontrado)
 @app.errorhandler(404)
