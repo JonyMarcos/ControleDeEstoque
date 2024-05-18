@@ -7,10 +7,13 @@
     <title>Gerenciamento de Estoque</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        /* Estilos personalizados podem ser adicionados aqui */
+    </style>
 </head>
-
 <body>
     <div class="container mt-5">
+        <!-- Cabeçalho -->
         <header>
             <div class="row justify-content-center mb-4">
                 <div class="col-md-8">
@@ -18,22 +21,23 @@
                     <h1 class="text-center">Sistema de Gerenciamento de Estoque MercadoCruz</h1>
                 </div>
             </div>
+            <!-- Navegação -->
             <nav class="mb-4">
                 <ul class="nav justify-content-center">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">Principal</a>
+                        <form id="logout-form" action="/atualizar-estoque" method="post"></form>
+                        <button type="submit" class="nav-link">Atualizar Estoque</button>
+                        </form>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Cadastrar Produto</a>
+                        <form id="logout-form" action="/gerar-relatorio" method="get"></form>
+                            <button type="submit" class="nav-link">Gerar Relatório</button>
+                        </form>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Cadastrar Fornecedor</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Atualizar Produto</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Relatório de Estoque</a>
+                        <form id="logout-form" action="/logout" method="post">
+                            <button type="submit" class="nav-link">Sair</button>
+                        </form>
                     </li>
                 </ul>
             </nav>
@@ -75,7 +79,7 @@
                         <input type="text" class="form-control" id="supplier_id" name="supplier_id" required>
                     </div>
                     <!-- Adicionei classe para espaçamento -->
-                    <button type="submit" class="btn btn-primary mb-3">Cadastrar Produto</button>
+                    <button type="submit" class="nav-link">Cadastrar Produto</button>
                 </form>
             </div>
             <div class="col-md-6">
@@ -98,7 +102,7 @@
                         <label for="supplier-phone">Telefone:</label>
                         <input type="text" class="form-control" id="supplier-phone" name="supplier-phone">
                     </div>
-                    <button type="submit" class="btn btn-primary">Cadastrar Fornecedor</button>
+                    <button type="submit" class="nav-link">Cadastrar Fornecedor</button>
                 </form>
             </div>
         </div>
@@ -291,11 +295,11 @@
         'rgba(75, 192, 192, 0.6)',
         'rgba(153, 102, 255, 0.6)',
         'rgba(255, 159, 64, 0.6)',
-        'rgba(255, 0, 0, 0.6)', // Vermelho
-        'rgba(0, 255, 0, 0.6)', // Verde
-        'rgba(0, 0, 255, 0.6)', // Azul
-        'rgba(255, 255, 0, 0.6)', // Amarelo
-        'rgba(128, 0, 128, 0.6)' // Roxo
+        'rgba(255, 0, 0, 0.6)', 
+        'rgba(0, 255, 0, 0.6)', 
+        'rgba(0, 0, 255, 0.6)',
+        'rgba(255, 255, 0, 0.6)',
+        'rgba(128, 0, 128, 0.6)'
     ];
 
     // Renderizar a legenda

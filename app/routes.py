@@ -1,12 +1,54 @@
-from flask import render_template, jsonify, request
+from flask import render_template, jsonify, request, redirect, url_for, session, flash
 from app import app, db
 from app.models import Product, Supplier, User
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import text
 
+# Função para verificar se o usuário está autenticado
+def check_login():
+    return 'user_id' in session
+
 @app.route('/')
 def index():
+    # Verifica se o usuário está autenticado
+    if not check_login():
+        # Se não estiver autenticado, redireciona para a página de login
+        return redirect(url_for('login'))
+    # Se estiver autenticado, renderiza a página index.html
     return render_template('index.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if not username or not password:
+            flash("Usuário e senha são obrigatórios")
+            return redirect(url_for('login'))
+
+        user = User.query.filter_by(username=username).first()
+
+        if not user or not user.check_password(password):
+            flash("Credenciais inválidas")
+            return redirect(url_for('login'))
+
+        # Definindo a sessão do usuário
+        session['user_id'] = user.id
+        session['username'] = user.username
+
+        # Redirecionando para a página index.html após o login bem-sucedido
+        return redirect(url_for('index'))
+    
+    # Se a solicitação for GET, renderiza a página de login
+    return render_template('login.html')
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.pop('user_id', None)
+    session.pop('username', None)
+    return redirect(url_for('login'))
+
 
 # Rota para obter produtos com baixo estoque
 @app.route('/produtos-baixo-estoque', methods=['GET'])
@@ -124,11 +166,13 @@ def cadastrar_fornecedor():
 # Rota para lidar com erros 404 (recurso não encontrado)
 @app.errorhandler(404)
 def not_found_error(error):
+    print("Erro 404: Recurso não encontrado")
     return jsonify({"error": "Recurso não encontrado"}), 404
 
 # Rota para lidar com outros erros
 @app.errorhandler(Exception)
 def internal_error(error):
+    print("Erro interno do servidor:", error)
     return jsonify({"error": "Erro interno do servidor"}), 500
 
 if __name__ == '__main__':
