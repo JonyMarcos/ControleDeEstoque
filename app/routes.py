@@ -1,6 +1,7 @@
 import pandas as pd
 from io import BytesIO
 from flask import send_file
+from datetime import datetime
 from flask import render_template, jsonify, request, redirect, url_for, session, flash
 from app import app, db
 from app.models import Product, Supplier, User
@@ -69,7 +70,7 @@ def produtos_baixo_estoque():
     
 # Rota para gerar relatório de produtos
 @app.route('/gerar-relatorio', methods=['GET'])
-def generate_report():
+def gerar_relatorio():
     try:
         products = Product.query.all()
         result = [{"product_Code": product.product_code, "name": product.name, "price": product.price, "quantity": product.quantity, "description": product.description, "category": product.category, "last_updated": product.last_updated} for product in products]
@@ -80,7 +81,7 @@ def generate_report():
 
 # Rota para atualizar o estoque de um produto
 @app.route('/atualizar-estoque', methods=['POST'])
-def update_stock():
+def atualizar_Estoque():
     try:
         data = request.form
         product_code = data.get('product_code')
@@ -227,13 +228,14 @@ def exportar_relatorio():
         
         output.seek(0)
         
+        # Gerar o nome do arquivo com timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f'relatorio_estoque_{timestamp}.xlsx'
+        
         # Enviar o arquivo como um anexo para download
-        return send_file(output, as_attachment=True, download_name='relatorio_produtos.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        return send_file(output, as_attachment=True, download_name=filename, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     
     except SQLAlchemyError as e:
         return jsonify({"error": "Erro ao exportar o relatório: " + str(e)}), 500
     except Exception as e:
         return jsonify({"error": "Erro desconhecido ao exportar o relatório: " + str(e)}), 500
-
-if __name__ == '__main__':
-    app.run(debug=True)
