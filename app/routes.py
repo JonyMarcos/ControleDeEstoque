@@ -1,7 +1,10 @@
+import pandas as pd
+from io import BytesIO
+from flask import send_file
 from flask import render_template, jsonify, request, redirect, url_for, session, flash
 from app import app, db
 from app.models import Product, Supplier, User
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy import text
 
 # Função para verificar se o usuário está autenticado
@@ -58,7 +61,7 @@ def produtos_baixo_estoque():
         produtos_baixo_estoque = Product.query.filter(Product.quantity < 20).all()
         
         # Formata os dados dos produtos para retornar
-        result = [{"name": produto.name, "quantity": produto.quantity, "description": produto.description} for produto in produtos_baixo_estoque]
+        result = [{"product_code": produto.product_code, "name": produto.name, "quantity": produto.quantity, "description": produto.description} for produto in produtos_baixo_estoque]
         
         return jsonify(result), 200
     except Exception as e:
@@ -79,21 +82,42 @@ def generate_report():
 @app.route('/atualizar-estoque', methods=['POST'])
 def update_stock():
     try:
-        data = request.json
-        product_id = data.get('id')
+        data = request.form
+        product_code = data.get('product_code')
+        new_description = data.get('description')
+        new_price = data.get('price')
         new_quantity = data.get('quantity')
-        if not product_id or not new_quantity:
-            return jsonify({"error": "ID do produto e nova quantidade são obrigatórios"}), 400
+        new_category = data.get('category')
+        new_supplier_id = data.get('supplier_id')
 
-        product = Product.query.get(product_id)
-        if not product:
-            return jsonify({"error": "Produto não encontrado"}), 404
+        if not product_code or not new_quantity:
+            return jsonify({"error": "Código do produto e nova quantidade são obrigatórios"}), 400
 
-        product.quantity = new_quantity
+        # Chama a stored procedure
+        sql = text("""
+            EXEC SPAtualizarProduto 
+                :product_code, 
+                :description, 
+                :price, 
+                :quantity, 
+                :category, 
+                :supplier_id
+        """)
+
+        result = db.session.execute(sql, {
+            'product_code': product_code,
+            'description': new_description if new_description else None,
+            'price': new_price if new_price else None,
+            'quantity': new_quantity if new_quantity else None,
+            'category': new_category if new_category else None,
+            'supplier_id': new_supplier_id if new_supplier_id else None
+        })
+
         db.session.commit()
-        return jsonify({"message": "Estoque atualizado com sucesso!"}), 200
-    except Exception as e:
-        return jsonify({"error": "Erro ao atualizar o estoque: " + str(e)}), 500
+        return jsonify({"message": "Produto atualizado com sucesso!"}), 200
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": "Erro ao atualizar o produto: " + str(e)}), 500
 
 @app.route('/cadastrar-produto', methods=['POST'])
 def cadastrar_produto():
@@ -174,6 +198,42 @@ def not_found_error(error):
 def internal_error(error):
     print("Erro interno do servidor:", error)
     return jsonify({"error": "Erro interno do servidor"}), 500
+
+# Rota para exportar relatório em formato .xlsx
+@app.route('/exportar-relatorio', methods=['GET'])
+def exportar_relatorio():
+    try:
+        # Consultar todos os produtos do banco de dados
+        products = Product.query.all()
+        
+        # Converter os dados para um DataFrame do pandas
+        data = [{
+            "Product_Code": product.product_code,
+            "Name": product.name,
+            "Price": product.price,
+            "Quantity": product.quantity,
+            "Description": product.description,
+            "Category": product.category,
+            "Last_Updated": product.last_updated,
+            "Supplier_ID": product.supplier_id
+        } for product in products]
+        
+        df = pd.DataFrame(data)
+        
+        # Criar um buffer de bytes para o arquivo Excel
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False, sheet_name='Products')
+        
+        output.seek(0)
+        
+        # Enviar o arquivo como um anexo para download
+        return send_file(output, as_attachment=True, download_name='relatorio_produtos.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    
+    except SQLAlchemyError as e:
+        return jsonify({"error": "Erro ao exportar o relatório: " + str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": "Erro desconhecido ao exportar o relatório: " + str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
