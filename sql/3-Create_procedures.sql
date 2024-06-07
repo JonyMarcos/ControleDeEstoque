@@ -33,4 +33,40 @@ BEGIN
 END;
 GO
 
+GO
+
+/****** Object:  StoredProcedure [dbo].[SPAtualizarProduto]    Script Date: 07/06/2024 11:43:33 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[SPAtualizarProduto]
+    @Product_Code NVARCHAR(50),
+    @Description NVARCHAR(MAX) = NULL,
+    @Price DECIMAL(18, 2) = NULL,
+    @Quantity INT = NULL,
+    @Category NVARCHAR(50) = NULL,
+    @Supplier_ID INT = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE [MercadoCruz].[dbo].[Products]
+    SET 
+        [Description] = COALESCE(@Description, [Description]),
+        Price = COALESCE(@Price, Price),
+        Quantity = COALESCE(Quantity + @Quantity, Quantity), -- Adiciona a quantidade
+        Category = COALESCE(@Category, Category),
+        supplier_id = COALESCE(@Supplier_ID, Supplier_ID),
+        Last_Updated = GETDATE()
+    WHERE Product_Code = @Product_Code;
+
+    IF @@ROWCOUNT = 0
+    BEGIN
+        RAISERROR ('Produto não encontrado', 16, 1);
+    END
+END
+GO
 
